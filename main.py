@@ -4,9 +4,8 @@ import os
 
 def main():
     load_dotenv()
-    vk_token = os.getenv("YA_TOKEN")
-    ya_token = os.getenv("VK_TOKEN")
-
+    vk_token = os.getenv("VK_TOKEN")
+    ya_token = os.getenv("YA_TOKEN")
     print(f'Добро пожаловать в программу для резервного копирования фотографий\n'
         f'с профиля(аватарок)  или  с  выбранного  альбома  пользователя  vk\n'
         f'в облачное хранилище Яндекс.Диск.\n' + '-' * 70)
@@ -29,7 +28,7 @@ def main():
             backup = BackupPhotosVK(vk_token, ya_token, id_vk)
             backup.get_photos_data_vk()
             backup.create_folder_ya_disk()
-            backup.upload_photos_disk() 
+            backup.upload_photos_disk()
             print('Хотите получить информацию о скопированных фото на Яндекс.Диск?')
             choice_two = input('(y/n) -> ')
             while choice_two not in ('y', 'n'):
@@ -37,12 +36,12 @@ def main():
                 choice_two = input('(y/n) -> ')
             print('-' * 70)
             if choice_two == 'y':
-                backup.get_information() 
+                backup.get_information()
             elif choice_two == 'n':
                 print('До скорой встречи!')
         except:
             print('Возникла ошибка: неверно введен id пользователя')
-        
+
     elif choice_one == 'n':
         print('Введите id ВК пользователя состоящий из цифр, у которого нужно\n'
             'выполнить резервное копирование фото на Яндекс.Диск:')
@@ -54,7 +53,7 @@ def main():
             f'- saved — сохраненные фотографии.')
         choice_three = input('-> ')
         print('-' * 70)
-        print('Введите желаемое количество фото для резрвного копирования (число):')
+        print('Введите желаемое количество фото для резервного копирования (число):')
         choice_four = input('-> ')
         while not choice_four.isdigit():
             print('Ошибка ввода, попробуйте снова:')
@@ -65,11 +64,11 @@ def main():
         choice_five = input('-> ')
         print('-' * 70)
         try:
-            backup = BackupPhotosVK(vk_token, ya_token, id_vk, vk_album_id=choice_three, 
+            backup = BackupPhotosVK(vk_token, ya_token, id_vk, vk_album_id=choice_three,
             num_photos=int(choice_four), name_folder=choice_five)
             backup.get_photos_data_vk()
             backup.create_folder_ya_disk()
-            backup.upload_photos_disk() 
+            backup.upload_photos_disk()
             print('Хотите получить информацию о скопированных фото на Яндекс.Диск?')
             choice_two = input('(y/n) -> ')
             while choice_two not in ('y', 'n'):
@@ -77,7 +76,7 @@ def main():
                 choice_two = input('(y/n) -> ')
             print('-' * 70)
             if choice_two == 'y':
-                backup.get_information() 
+                backup.get_information()
             elif choice_two == 'n':
                 print('До скорой встречи!')
         except:
