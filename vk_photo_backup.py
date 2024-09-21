@@ -56,11 +56,10 @@ class BackupPhotosVK:
         }
         vk_photos_data = vk_session.method('photos.get', params)
         list_data_photos = list(((x['likes']['count'],
-                                  f"{datetime.datetime.fromtimestamp(x['date']).strftime('%Y-%m-%d')}",
-                                  x['orig_photo']['url']) for x in sorted(vk_photos_data['items'],
-                                                                          key=lambda x: x['orig_photo']['width'] +
-                                                                          x['orig_photo']['height'],
-                                                                          reverse=True)))
+        f"{datetime.datetime.fromtimestamp(x['date']).strftime('%Y-%m-%d')}",
+        x['orig_photo']['url']) for x in sorted(vk_photos_data['items'],
+        key=lambda x: x['orig_photo']['width'] + x['orig_photo']['height'],
+        reverse=True)))
         return list_data_photos[:self.num_photos] if len(list_data_photos) >= \
             self.num_photos else list_data_photos
 
