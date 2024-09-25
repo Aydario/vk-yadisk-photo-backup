@@ -24,9 +24,9 @@ def main():
             'выполнить резервное копирование фото на Яндекс.Диск:')
         id_vk = input('-> ')
         print('-' * 70)
-        try:
-            backup = BackupPhotosVK(vk_token, ya_token, id_vk)
-            backup.get_photos_data_vk()
+        backup = BackupPhotosVK(vk_token, ya_token, id_vk)
+        step = backup.get_photos_data_vk()
+        if type(step) == list:
             backup.create_folder_ya_disk()
             backup.upload_photos_disk()
             print('Хотите получить информацию о скопированных фото на Яндекс.Диск?')
@@ -39,8 +39,8 @@ def main():
                 backup.get_information()
             elif choice_two == 'n':
                 print('До скорой встречи!')
-        except:
-            print('Возникла ошибка: неверно введен id пользователя')
+        else:
+            step
 
     elif choice_one == 'n':
         print('Введите id ВК пользователя состоящий из цифр, у которого нужно\n'
@@ -63,24 +63,27 @@ def main():
             f'будет осуществляться резервного копирования (число):')
         choice_five = input('-> ')
         print('-' * 70)
-        try:
-            backup = BackupPhotosVK(vk_token, ya_token, id_vk, vk_album_id=choice_three,
-            num_photos=int(choice_four), name_folder=choice_five)
-            backup.get_photos_data_vk()
-            backup.create_folder_ya_disk()
-            backup.upload_photos_disk()
-            print('Хотите получить информацию о скопированных фото на Яндекс.Диск?')
-            choice_two = input('(y/n) -> ')
-            while choice_two not in ('y', 'n'):
-                print('Неверный ввод: введите "y" (да) или "n" (нет)')
+        backup = BackupPhotosVK(vk_token, ya_token, id_vk, vk_album_id=choice_three,
+        num_photos=int(choice_four), name_folder=choice_five)
+        step = backup.get_photos_data_vk()
+        if type(step) == list:
+            create_folder = backup.create_folder_ya_disk()
+            if create_folder != None:
+                backup.upload_photos_disk()
+                print('Хотите получить информацию о скопированных фото на Яндекс.Диск?')
                 choice_two = input('(y/n) -> ')
-            print('-' * 70)
-            if choice_two == 'y':
-                backup.get_information()
-            elif choice_two == 'n':
-                print('До скорой встречи!')
-        except:
-            print('Возникла ошибка: неверно введен id пользователя или id альбома')
+                while choice_two not in ('y', 'n'):
+                    print('Неверный ввод: введите "y" (да) или "n" (нет)')
+                    choice_two = input('(y/n) -> ')
+                print('-' * 70)
+                if choice_two == 'y':
+                    backup.get_information()
+                elif choice_two == 'n':
+                    print('До скорой встречи!')
+            else:
+                create_folder
+        else:
+            step
 
 if __name__ == '__main__':
     main()

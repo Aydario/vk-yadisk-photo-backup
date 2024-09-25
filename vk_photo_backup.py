@@ -38,6 +38,7 @@ class BackupPhotosVK:
         self.num_photos = num_photos
         self.name_folder = name_folder
         self.ya_disk_api = 'https://cloud-api.yandex.net/v1/disk/resources'
+        self.vk_api = 'https://api.vk.com/method/'
         self.file_names = set()
 
     def get_photos_data_vk(self) -> List[Tuple[int, str, str]]:
@@ -48,20 +49,35 @@ class BackupPhotosVK:
             list: Список кортежей с данными о фотографиях
             (количество лайков, дата, URL фото).
         """
-        vk_session = vk_api.VkApi(token=self.token_vk)
+        url = f'{self.vk_api}photos.get'
         params = {
+            'access_token': self.token_vk,
+            'v': '5.131',
             'owner_id': self.vk_user_id,
             'album_id': self.vk_album_id,
-            'extended': 1
+            'extended': 1,
+            'count': self.num_photos,
+            'photo_sizes': 1
         }
-        vk_photos_data = vk_session.method('photos.get', params)
-        list_data_photos = list(((x['likes']['count'],
-        f"{datetime.datetime.fromtimestamp(x['date']).strftime('%Y-%m-%d')}",
-        x['orig_photo']['url']) for x in sorted(vk_photos_data['items'],
-        key=lambda x: x['orig_photo']['width'] + x['orig_photo']['height'],
-        reverse=True)))
-        return list_data_photos[:self.num_photos] if len(list_data_photos) >= \
-            self.num_photos else list_data_photos
+        response = requests.get(url, params=params).json()
+        if 'error' in response:
+            err_code = response['error']['error_code']
+            err_msg = response['error']['error_msg']
+            print(f"Error {err_code}: {err_msg}")
+        else:
+            photos = response['response']['items']
+            list_data_photos = []
+            for photo in photos:
+                max_size, url = 0, None
+                for size in photo['sizes']:
+                    if size['width'] * size['height'] > max_size:
+                        max_size = size['width'] * size['height']
+                        url = size['url']
+                if url:
+                    likes = photo.get('likes', {})
+                    date = datetime.datetime.fromtimestamp(photo['date']).strftime('%Y-%m-%d')
+                    list_data_photos.append((likes['count'], date, url))
+            return list_data_photos
 
     def create_folder_ya_disk(self) -> str:
         """
@@ -83,9 +99,11 @@ class BackupPhotosVK:
         if status == 201:
             print(f'Папка {self.name_folder} успешно создана')
             return self.name_folder
-        else:
+        elif status == 409:
             print(response.json()['message'])
             return self.name_folder
+        else:
+            print(f'Error: {response.json()["message"]}')
 
     def upload_photos_disk(self):
         """
